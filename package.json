@@ -1,19 +1,21 @@
 {
-  "name": "backend",
+  "name": "bookstore_api",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
-    "dev": "ts-node index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon",
+    "build": "tsc && tsc-alias"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cookie-session": "^2.1.1",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "find-remove": "^4.1.0",
     "fs": "^0.0.1-security",
@@ -21,8 +23,9 @@
     "mongodb": "^6.2.0",
     "mongoose": "^8.0.0",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.0.1",
-    "ts-node": "^10.9.2"
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
