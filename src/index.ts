@@ -6,8 +6,10 @@ import cookieParser from "cookie-parser";
 import { connectDb, disconnectFromDb } from "./lib/mongoose";
 import config from "./config";
 
+import v1router from "./routes/v1/index";
+
 // import routerAuthor from "./routes/author.js";
-// import routerBook from "./routes/book.js";
+import routerBook from "./routes/v1/book";
 // import routerGenre from "./routes/genre.js";
 // import routerUser from "./routes/user.js";
 // import routerImages from "./routes/files.js";
@@ -36,10 +38,10 @@ app.use(
   try {
     await connectDb();
     app.get("/ping", (req, res) => res.json({ status: "ok" })); // for ELB checker
+    app.use("/api/v1", v1router);
     // app.use(loggerMiddleware);
     // app.use("/uploads", express.static("uploads")); // предоставляется доступ ко всем медиа-файлам в папке uploads
     // app.use("/api/authors", routerAuthor);
-    // app.use("/api/books", routerBook);
     // app.use("/api/newspaper", routerNewspaper);
     // app.use("/api/publisher", routerPublisher);
     // app.use("/api/genres", routerGenre);
