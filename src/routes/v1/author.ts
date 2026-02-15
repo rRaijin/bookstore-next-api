@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
 import Author from '../../models/author';
-import User from '../../models/user';
+import { User } from '@/models/user';
 
 const jsonParser = express.json();
 const router: Router = express.Router();
@@ -17,17 +17,16 @@ interface AuthorsPostBody {
     filter?: Filter;
 }
 
-router.post('/', async (req: Request<{}, {}, AuthorsPostBody>, res: Response) =>  {
+router.post('/', async (req: Request<{}, {}, AuthorsPostBody>, res: Response) => {
     const { pageNum, perPage, countItems, filter } = req.body;
     // console.log('Author Body', req.body);
     let query: any = {};
     if (filter && filter.hasOwnProperty('desc') && filter.desc !== '') {
         query['$or'] = [
-            {bio: {'$regex' : filter.desc, '$options' : 'i'}},
-            {'userId.lastName' : {'$regex' : filter ? filter.desc : '', '$options' : 'i'}}
-        ]
+            { bio: { $regex: filter.desc, $options: 'i' } },
+            { 'userId.lastName': { $regex: filter ? filter.desc : '', $options: 'i' } },
+        ];
     } else {
-        
     }
     let items: any;
 
@@ -38,71 +37,72 @@ router.post('/', async (req: Request<{}, {}, AuthorsPostBody>, res: Response) =>
     try {
         items = await Author.aggregate([
             {
-                $match: {} // объект параметров запроса
+                $match: {}, // объект параметров запроса
             },
             {
-                $lookup: { // выполняем 'join', оператор присоединения
-                    from: 'users', // находим в таблице 'users' 
+                $lookup: {
+                    // выполняем 'join', оператор присоединения
+                    from: 'users', // находим в таблице 'users'
                     localField: 'userId', // по полю 'userId'
                     foreignField: '_id', // юзера c соотв. идентификатором
-                    as: 'userId' // полученный результат (массив, из одного объекта) сохраняем в переменную 'userObj' (массив)
-                }
+                    as: 'userId', // полученный результат (массив, из одного объекта) сохраняем в переменную 'userObj' (массив)
+                },
             },
             {
-                $unwind: {path: '$userId'} // распечатівает массив
+                $unwind: { path: '$userId' }, // распечатівает массив
             },
             {
-                $match: query // в объект 'query' мы передаем ранее сформированный фильтр
+                $match: query, // в объект 'query' мы передаем ранее сформированный фильтр
             },
             {
                 $project: {
-                    _id: 1, 
-                    picture: 1, 
-                    bio: 1, 
-                    'userId.firstName': 1, 
-                    'userId.lastName': 1
-                }
+                    _id: 1,
+                    picture: 1,
+                    bio: 1,
+                    'userId.firstName': 1,
+                    'userId.lastName': 1,
+                },
             },
             {
-                $sort: {'userId.firstName': -1}
+                $sort: { 'userId.firstName': -1 },
             },
             {
                 $addFields: {
                     cats: 20,
                     // bookCategoriesCnt: {$size: '$genres'}
-                }
+                },
             },
             {
-                $skip: (pageNum - 1) * perPage
+                $skip: (pageNum - 1) * perPage,
             },
             {
-                $limit: perPage
-            }
+                $limit: perPage,
+            },
         ]);
     } catch (error) {
         console.log('Error: ', error);
-        return res.status(404).json({message: 'ERROR'});
+        return res.status(404).json({ message: 'ERROR' });
     }
     if (!items) {
-        return res.status(404).json({message: 'No items'});
+        return res.status(404).json({ message: 'No items' });
     }
     console.log('items: ', items);
-    return res.status(200).json({items, countItems: totalDocuments});
+    return res.status(200).json({ items, countItems: totalDocuments });
 });
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     let items: any;
     try {
         items = await Author.find().populate({
-            path: 'userId'
+            path: 'userId',
         });
     } catch (error) {
         console.log('Error: ', error);
     }
     if (!items) {
-        return res.status(404).json({message: 'No items'});
+        return res.status(404).json({ message: 'No items' });
     }
-    return res.status(200).json({items});
+    return res.status(200).json({ items });
 });
 
 router.post('/', async (req: Request<{}, {}, AuthorsPostBody>, res: Response, next: NextFunction) => {
@@ -119,22 +119,23 @@ router.post('/', async (req: Request<{}, {}, AuthorsPostBody>, res: Response, ne
     let items: any;
     console.log('est: ', countItems);
     if (!countItems) {
-        console.log('OK: ', countItems)
+        console.log('OK: ', countItems);
     }
     const totalDocuments = countItems ? countItems : await Author.estimatedDocumentCount();
     try {
-        items = await Author.find({}).populate({path: 'userId',model: 'User'
-        }).skip((pageNum - 1) * perPage).limit(perPage);
+        items = await Author.find({})
+            .populate({ path: 'userId', model: 'User' })
+            .skip((pageNum - 1) * perPage)
+            .limit(perPage);
     } catch (error) {
         console.log('Error: ', error);
-        return res.status(404).json({message: 'ERROR'});
+        return res.status(404).json({ message: 'ERROR' });
     }
     if (!items) {
-        return res.status(404).json({message: 'No items'});
+        return res.status(404).json({ message: 'No items' });
     }
-    return res.status(200).json({items, countItems: totalDocuments});
+    return res.status(200).json({ items, countItems: totalDocuments });
 });
-
 
 interface AuthorPutBody {
     _id?: string;
@@ -177,7 +178,7 @@ router.put('/', jsonParser, async (req: Request<{}, {}, AuthorPutBody>, res: Res
                     lastName,
                     userEmail,
                     password: '12345678',
-                    isAuthor: true
+                    isAuthor: true,
                 });
                 const savedUser = await user.save();
                 author.userId = savedUser._id;
@@ -188,12 +189,12 @@ router.put('/', jsonParser, async (req: Request<{}, {}, AuthorPutBody>, res: Res
                 lastName,
                 userEmail,
                 password: '12345678',
-                isAuthor: true
+                isAuthor: true,
             });
             const savedUser = await user.save();
             author = new Author({
                 bio,
-                userId: savedUser._id
+                userId: savedUser._id,
             });
         }
         await author.save();
@@ -201,7 +202,7 @@ router.put('/', jsonParser, async (req: Request<{}, {}, AuthorPutBody>, res: Res
     } catch (error) {
         console.error('Error in PUT /api/authors:', error);
     } finally {
-        console.log('OK!!!')
+        console.log('OK!!!');
     }
 });
 
