@@ -1,12 +1,12 @@
-import express from 'express';
-import { saveFile } from './files.js';
-import Author from '../models/author.js';
-import User from '../models/user.js';
+import express, { Request, Response, Router } from 'express';
+import { saveFile } from './v1/files';
+import Author from '../models/author';
+import User from '../models/user';
 
 const jsonParser = express.json();
-const router = new express.Router();
+const router: Router = Router();
 
-router.get('/', jsonParser, async (req, res) => {
+router.get('/', jsonParser, async (req: Request, res: Response) => {
     console.log('FETCH 12312312');
     let i = 0;
     while (i < 300) {
@@ -15,7 +15,7 @@ router.get('/', jsonParser, async (req, res) => {
         let userEmail = 'testauthor' + (i + 1) + '@gmail.com';
         let bio = 'Test bio for author #' + (i + 1);
 
-        const user = new User({
+        const user: any = new User({
             firstName,
             lastName,
             userEmail,
@@ -25,7 +25,7 @@ router.get('/', jsonParser, async (req, res) => {
 
         const savedUser = await user.save();
 
-        const author = new Author({
+        const author: any = new Author({
             bio,
             userId: savedUser._id
         });

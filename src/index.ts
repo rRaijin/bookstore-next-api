@@ -10,8 +10,12 @@ import v1router from "./routes/v1/index";
 
 // import routerAuthor from "./routes/author.js";
 import routerBook from "./routes/v1/book";
-// import routerGenre from "./routes/genre.js";
-// import routerUser from "./routes/user.js";
+import routerAuthor from "./routes/v1/author";
+import routerFiles from "./routes/v1/files";
+import routerGenre from "./routes/v1/genre";
+import routerNewspaper from "./routes/v1/newspaper";
+import routerPublisher from "./routes/v1/publisher";
+import routerUser from "./routes/v1/user";
 // import routerImages from "./routes/files.js";
 // import routerNewspaper from "./routes/newspaper.js";
 // import routerPublisher from "./routes/publisher.js";

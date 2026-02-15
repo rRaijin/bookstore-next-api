@@ -1,14 +1,15 @@
-import express from "express";
+import express, { Request, Response, Router } from "express";
 
-import { saveFile } from "./files.js";
-import Book from "../models/book.js";
-import Author from "../models/author.js";
+import { saveFile } from "../routes/v1/files";
+import Book from "../models/book";
+import Author from "../models/author";
 
 const jsonParser = express.json();
-const router = new express.Router();
+const router: Router = Router();
 
-router.get("/", jsonParser, async (req, res) => {
+router.get("/", jsonParser, async (req: Request, res: Response) => {
   console.log("FETCH");
+  let i = 0;
   while (i < 300) {
     let bookName = "Test book # " + i + 1;
     let description = "Test description # " + i + 1;
@@ -16,7 +17,7 @@ router.get("/", jsonParser, async (req, res) => {
     let price = 10000 - i * 4;
     let pages = 50 + i * 5;
 
-    const book = new Book({
+    const book: any = new Book({
       bookName,
       description,
       year,

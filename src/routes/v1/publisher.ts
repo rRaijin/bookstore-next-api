@@ -1,15 +1,13 @@
-import express from 'express';
-import { saveFile } from './files.js';
-import Publisher from '../models/publisher.js';
-import User from '../models/user.js';
-
+import express, { Request, Response, NextFunction, Router } from 'express';
+import { saveFile } from './files';
+import Publisher from '../../models/publisher';
+import User from '../../models/user';
 
 const jsonParser = express.json();
-const router = new express.Router();
+const router: Router = Router();
 
-
-router.get('/', async (req, res, next) => {
-    let items;
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+    let items: any;
     try {
         items = await Publisher.find().populate({
             path: 'userId'
@@ -23,12 +21,25 @@ router.get('/', async (req, res, next) => {
     return res.status(200).json({items});
 });
 
+interface PublisherPutBody {
+    _id?: string;
+    userId?: any;
+    userEmail?: string;
+    firstName: string;
+    lastName: string;
+    bio?: string;
+    year?: number;
+    pseudonym?: string;
+    isEditorInChief?: boolean;
+    picture?: string;
+    imageFolder?: string;
+}
 
-router.put('/', jsonParser, async (req, res) => {
+router.put('/', jsonParser, async (req: Request<{}, {}, PublisherPutBody>, res: Response) => {
     console.log('form body: ', req.body);
     const {_id, userId, userEmail, firstName, lastName, bio, year, pseudonym, isEditorInChief, picture, imageFolder } = req.body;
 
-    let publisher;
+    let publisher: any;
     if (_id) {
         publisher = await Publisher.findById(_id);
         if (!publisher) {
@@ -40,7 +51,7 @@ router.put('/', jsonParser, async (req, res) => {
         publisher.pseudonym = pseudonym;
         publisher.isEditorInChief = isEditorInChief
 
-        let user;
+        let user: any;
         if (userId) {
             // update exists
             user = await User.findById(userId._id);
@@ -87,7 +98,7 @@ router.put('/', jsonParser, async (req, res) => {
     }
 
     if (picture) {
-        await saveFile(picture, imageFolder);
+        await saveFile(picture, imageFolder as string);
     }
     await publisher.save();
     return res.status(200).json({message: 'OK', item: publisher});

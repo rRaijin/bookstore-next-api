@@ -1,17 +1,26 @@
-import express from 'express';
+import express, { Request, Response, NextFunction, Router } from 'express';
 
-import { saveFile } from './files.js';
-import Author from '../models/author.js';
-import User from '../models/user.js';
-
+import Author from '../../models/author';
+import User from '../../models/user';
 
 const jsonParser = express.json();
-const router = new express.Router();
+const router: Router = express.Router();
 
-router.post('/', async (req, res) =>  {
+interface Filter {
+    desc?: string;
+}
+
+interface AuthorsPostBody {
+    pageNum: number;
+    perPage: number;
+    countItems?: number;
+    filter?: Filter;
+}
+
+router.post('/', async (req: Request<{}, {}, AuthorsPostBody>, res: Response) =>  {
     const { pageNum, perPage, countItems, filter } = req.body;
     // console.log('Author Body', req.body);
-    let query = {};
+    let query: any = {};
     if (filter && filter.hasOwnProperty('desc') && filter.desc !== '') {
         query['$or'] = [
             {bio: {'$regex' : filter.desc, '$options' : 'i'}},
@@ -20,7 +29,7 @@ router.post('/', async (req, res) =>  {
     } else {
         
     }
-    let items;
+    let items: any;
 
     const totalDocuments = countItems && countItems !== 0 ? countItems : await Author.countDocuments(query);
     // console.log('total: ', totalDocuments)
@@ -81,8 +90,8 @@ router.post('/', async (req, res) =>  {
     return res.status(200).json({items, countItems: totalDocuments});
 });
 
-router.get('/', async (req, res, next) => {
-    let items;
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+    let items: any;
     try {
         items = await Author.find().populate({
             path: 'userId'
@@ -96,7 +105,7 @@ router.get('/', async (req, res, next) => {
     return res.status(200).json({items});
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', async (req: Request<{}, {}, AuthorsPostBody>, res: Response, next: NextFunction) => {
     const { pageNum, perPage, countItems } = req.body;
     console.log('BODY: ', req.body);
     // return Book.aggregate([
@@ -107,7 +116,7 @@ router.post('/', async (req, res, next) => {
 
     //     }
     // ])
-    let items;
+    let items: any;
     console.log('est: ', countItems);
     if (!countItems) {
         console.log('OK: ', countItems)
@@ -127,12 +136,21 @@ router.post('/', async (req, res, next) => {
 });
 
 
-router.put('/', jsonParser, async (req, res) => {
+interface AuthorPutBody {
+    _id?: string;
+    firstName: string;
+    lastName: string;
+    userEmail: string;
+    bio: string;
+    userId?: string;
+}
+
+router.put('/', jsonParser, async (req: Request<{}, {}, AuthorPutBody>, res: Response) => {
     try {
         console.log('form body: ', req.body);
         const { _id, firstName, lastName, userEmail, bio, userId } = req.body;
 
-        let author;
+        let author: any;
         if (_id) {
             author = await Author.findById(_id);
             if (!author) {
@@ -140,7 +158,7 @@ router.put('/', jsonParser, async (req, res) => {
             }
             author.bio = bio;
 
-            let user;
+            let user: any;
             if (userId) {
                 // update exists
                 user = await User.findById(userId);
@@ -187,6 +205,4 @@ router.put('/', jsonParser, async (req, res) => {
     }
 });
 
-
 export default router;
-

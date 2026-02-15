@@ -1,13 +1,12 @@
-import express from 'express';
+import express, { Request, Response, NextFunction, Router } from 'express';
 
-import User from '../models/user.js';
-
+import User from '../../models/user';
 
 const jsonParser = express.json();
-const router = new express.Router();
+const router: Router = Router();
 
-router.get('/', async (req, res, next) => {
-    let items;
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+    let items: any;
     try {
         items = await User.find();
     } catch (error) {
