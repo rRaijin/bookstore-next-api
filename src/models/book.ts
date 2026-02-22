@@ -1,24 +1,47 @@
-import mongoose from 'mongoose';
+import { getModelForClass, prop, pre, Ref } from '@typegoose/typegoose';
+import { AuthorSchema } from './author';
+import { GenreSchema } from './genre';
 
+@pre<BookSchema>('save', function () {
+    this.updatedAt = new Date().getTime();
+    if (this.isNew) {
+        this.createdAt = new Date().getTime();
+    }
+})
+export class BookSchema {
+    @prop()
+    public bookName: string;
 
-const Schema = mongoose.Schema;
-const bookSchema = new Schema({
-    bookName: String,
-    description: String,
-    year: Number,
-    price: Number,
-    picture: String,
-    pages: Number,
-    authorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Author'
+    @prop()
+    public description: string;
+
+    @prop()
+    public year: number;
+
+    @prop()
+    public price: number;
+
+    @prop()
+    public picture: string;
+
+    @prop()
+    public pages: number;
+
+    @prop({ ref: () => AuthorSchema })
+    public authorId: Ref<AuthorSchema>;
+
+    @prop({ ref: () => GenreSchema, type: () => [GenreSchema] })
+    public genres: Ref<GenreSchema>[];
+
+    @prop()
+    public createdAt: number;
+
+    @prop()
+    public updatedAt: number;
+}
+
+export const Book = getModelForClass(BookSchema, {
+    schemaOptions: {
+        collection: 'books',
     },
-    genres: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Genre'
-    }]
-}, {
-    timestamps: true
 });
-
-export default mongoose.model('Book', bookSchema);

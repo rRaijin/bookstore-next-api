@@ -1,19 +1,32 @@
-import mongoose from 'mongoose';
+import { getModelForClass, prop, pre, Ref } from '@typegoose/typegoose';
+import { UserSchema } from './user';
 
-const Schema = mongoose.Schema;
-const authorSchema = new Schema(
-    {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-        },
-        picture: String,
-        bio: String,
-    },
-    {
+@pre<AuthorSchema>('save', function () {
+    this.updatedAt = new Date().getTime();
+    if (this.isNew) {
+        this.createdAt = new Date().getTime();
+    }
+})
+export class AuthorSchema {
+    @prop({ ref: () => UserSchema })
+    public userId: Ref<UserSchema>;
+
+    @prop()
+    public picture: string;
+
+    @prop()
+    public bio: string;
+
+    @prop()
+    public createdAt: number;
+
+    @prop()
+    public updatedAt: number;
+}
+
+export const Author = getModelForClass(AuthorSchema, {
+    schemaOptions: {
+        collection: 'authors',
         versionKey: false,
-        timestamps: true,
     },
-);
-
-export default mongoose.model('Author', authorSchema);
+});

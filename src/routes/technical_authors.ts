@@ -20,17 +20,17 @@ router.get('/', jsonParser, async (req: Request, res: Response) => {
             lastName,
             userEmail,
             password: '12345678',
-            isAuthor: true
+            isAuthor: true,
         });
 
         const savedUser = await user.save();
 
         const author: any = new Author({
             bio,
-            userId: savedUser._id
+            userId: savedUser._id,
         });
 
-        await author.save(); 
+        await author.save();
 
         console.log('Iteration: ', i);
         i++;

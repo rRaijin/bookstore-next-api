@@ -1,25 +1,40 @@
-import mongoose from 'mongoose';
+import { getModelForClass, prop, pre, Ref } from '@typegoose/typegoose';
+import { PublisherSchema } from './publisher';
 
+@pre<NewspaperSchema>('save', function () {
+    this.updatedAt = new Date().getTime();
+    if (this.isNew) {
+        this.createdAt = new Date().getTime();
+    }
+})
+export class NewspaperSchema {
+    @prop()
+    public newspaperName: string;
 
-const Schema = mongoose.Schema;
-const newspaperSchema = new Schema({
-    newspaperName: String,
-    description: String,
-    year: Number,
-    picture: String,
-    editors: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Publisher'
-        }
-    ]
-    // publisher: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Publisher'
-    // },
-    
-}, {
-    timestamps: true
+    @prop()
+    public description: string;
+
+    @prop()
+    public year: number;
+
+    @prop()
+    public picture: string;
+
+    @prop({ ref: () => PublisherSchema, type: () => [PublisherSchema] })
+    public editors: Ref<PublisherSchema>[];
+
+    // @prop({ ref: () => PublisherSchema })
+    // public publisher: Ref<PublisherSchema>;
+
+    @prop()
+    public createdAt: number;
+
+    @prop()
+    public updatedAt: number;
+}
+
+export const Newspaper = getModelForClass(NewspaperSchema, {
+    schemaOptions: {
+        collection: 'newspapers',
+    },
 });
-
-export default mongoose.model('Newspaper', newspaperSchema);

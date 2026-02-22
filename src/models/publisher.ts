@@ -1,21 +1,40 @@
-import mongoose from "mongoose";
+import { getModelForClass, prop, pre, Ref } from '@typegoose/typegoose';
+import { UserSchema } from './user'; // путь поправь
 
-const Schema = mongoose.Schema;
-const publisherSchema = new Schema({
-    userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
-    bio: String,
-    year: Number,
-    picture: String,
-    pseudonym: String,
-    isEditorInChief: {
-        type: mongoose.Schema.Types.Boolean,
-        default: false
+@pre<PublisherSchema>('save', function () {
+    this.updatedAt = new Date().getTime();
+    if (this.isNew) {
+        this.createdAt = new Date().getTime();
+    }
+})
+export class PublisherSchema {
+    @prop({ ref: () => UserSchema })
+    public userId: Ref<UserSchema>;
+
+    @prop()
+    public bio: string;
+
+    @prop()
+    public year: number;
+
+    @prop()
+    public picture: string;
+
+    @prop()
+    public pseudonym: string;
+
+    @prop({ default: false })
+    public isEditorInChief: boolean;
+
+    @prop()
+    public createdAt: number;
+
+    @prop()
+    public updatedAt: number;
+}
+
+export const Publisher = getModelForClass(PublisherSchema, {
+    schemaOptions: {
+        collection: 'publishers',
     },
-}, {
-    timestamps: true
 });
-
-export default mongoose.model('Publisher', publisherSchema);

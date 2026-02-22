@@ -10,15 +10,15 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     let items: any;
     try {
         items = await Publisher.find().populate({
-            path: 'userId'
+            path: 'userId',
         });
     } catch (error) {
         console.log('Error: ', error);
     }
     if (!items) {
-        return res.status(404).json({message: 'No items'});
+        return res.status(404).json({ message: 'No items' });
     }
-    return res.status(200).json({items});
+    return res.status(200).json({ items });
 });
 
 interface PublisherPutBody {
@@ -37,7 +37,7 @@ interface PublisherPutBody {
 
 router.put('/', jsonParser, async (req: Request<{}, {}, PublisherPutBody>, res: Response) => {
     console.log('form body: ', req.body);
-    const {_id, userId, userEmail, firstName, lastName, bio, year, pseudonym, isEditorInChief, picture, imageFolder } = req.body;
+    const { _id, userId, userEmail, firstName, lastName, bio, year, pseudonym, isEditorInChief, picture, imageFolder } = req.body;
 
     let publisher: any;
     if (_id) {
@@ -45,11 +45,10 @@ router.put('/', jsonParser, async (req: Request<{}, {}, PublisherPutBody>, res: 
         if (!publisher) {
             return res.status(404).json({ error: 'Автор не находится' });
         }
-        publisher.bio = bio,
-        publisher.year = year;
+        ((publisher.bio = bio), (publisher.year = year));
         publisher.picture = picture;
         publisher.pseudonym = pseudonym;
-        publisher.isEditorInChief = isEditorInChief
+        publisher.isEditorInChief = isEditorInChief;
 
         let user: any;
         if (userId) {
@@ -70,7 +69,7 @@ router.put('/', jsonParser, async (req: Request<{}, {}, PublisherPutBody>, res: 
                 lastName,
                 userEmail,
                 password: '12345678',
-                isAuthor: true
+                isAuthor: true,
             });
             const savedUser = await user.save();
             publisher.userId = savedUser._id;
@@ -81,7 +80,7 @@ router.put('/', jsonParser, async (req: Request<{}, {}, PublisherPutBody>, res: 
             lastName,
             userEmail,
             password: '12345678',
-            isAuthor: true
+            isAuthor: true,
         });
         const savedUser = await user.save();
         publisher = new Publisher({
@@ -93,7 +92,7 @@ router.put('/', jsonParser, async (req: Request<{}, {}, PublisherPutBody>, res: 
             lastName,
             userEmail,
             pseudonym,
-            isEditorInChief
+            isEditorInChief,
         });
     }
 
@@ -101,7 +100,7 @@ router.put('/', jsonParser, async (req: Request<{}, {}, PublisherPutBody>, res: 
         await saveFile(picture, imageFolder as string);
     }
     await publisher.save();
-    return res.status(200).json({message: 'OK', item: publisher});
+    return res.status(200).json({ message: 'OK', item: publisher });
 });
 
 export default router;
