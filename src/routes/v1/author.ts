@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
-import Author from '../../models/author';
+import { Author } from '@/models/author';
 import { User } from '@/models/user';
 
 const jsonParser = express.json();

@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 import { saveFile } from './files';
-import Publisher from '../../models/publisher';
-import User from '../../models/user';
+import { Publisher } from '@/models/publisher';
+import { User } from '@/models/user';
 
 const jsonParser = express.json();
 const router: Router = Router();

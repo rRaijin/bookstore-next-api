@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 import { saveFile } from './files';
-import Newspaper from '../../models/newspaper';
+import { Newspaper } from '@/models/newspaper';
 import mongoose from 'mongoose';
 
 const jsonParser = express.json();

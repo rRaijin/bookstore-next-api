@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
-import Genre from '../../models/genre';
+import { Genre } from '@/models/genre';
 
 const jsonParser = express.json();
 const router: Router = Router();

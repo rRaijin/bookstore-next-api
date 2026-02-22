@@ -1,7 +1,6 @@
+import { Author } from '@/models/author';
+import { Book } from '@/models/book';
 import express, { Router, Request, Response, NextFunction } from 'express';
-
-import Book from '../../models/book';
-import Author from '../../models/author';
 
 const jsonParser = express.json();
 const router: Router = express.Router();
@@ -17,6 +16,26 @@ interface BooksPostBody {
     countItems?: number;
     filter?: Filter;
 }
+
+router.post('/by-id', async (req: Request, res: Response) => {
+    const { id, getFull } = req.body;
+    if (getFull) {
+        return Book.getFullBook(id).then((item) => {
+            return res.json({
+                success: true,
+                data: item,
+            });
+        });
+    } else {
+        // return Book.findById(id, { _id: 1, authorId: 1 }).then((item) => {
+        return Book.findById(id, { _id: 1, authorId: 1 }).then((item) => {
+            return res.json({
+                success: true,
+                data: item.toObject(),
+            });
+        });
+    }
+});
 
 router.post('/', async (req: Request<{}, {}, BooksPostBody>, res: Response) => {
     const { pageNum, perPage, countItems, filter } = req.body;
