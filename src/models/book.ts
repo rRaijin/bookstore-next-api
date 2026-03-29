@@ -1,17 +1,33 @@
-import { getModelForClass, prop, pre, Ref } from '@typegoose/typegoose';
+import { getModelForClass, prop, pre, Ref, DocumentType, index } from '@typegoose/typegoose';
+import slugify from 'slugify';
+
 import { AuthorSchema } from './author';
 import { GenreSchema } from './genre';
 import { getMongoId } from '@/lib/utils';
 
+// localhost/books/white-and-black
+
+@pre<BookSchema>('validate', function (next) {
+    if (this.bookName && this.isModified('bookName')) {
+        console.log('MODIFY');
+        this.slug = slugify(this.bookName, { lower: true });
+    }
+    return next();
+})
 @pre<BookSchema>('save', function () {
     this.updatedAt = new Date().getTime();
     if (this.isNew) {
         this.createdAt = new Date().getTime();
+        console.log('IS NEW');
     }
 })
+@index({ slug: 1 })
 export class BookSchema {
     @prop()
     public bookName: string;
+
+    @prop({ unique: true })
+    public slug: string;
 
     @prop()
     public description: string;
@@ -85,6 +101,11 @@ export class BookSchema {
         ]).then((items) => {
             return items[0];
         });
+    }
+
+    // @instanceMethod -- декоратор использовался в старых версиях typegoose
+    public myTestInstanceMethod(this: DocumentType<BookSchema>, x: number) {
+        console.log('Сущность из БД: ', this, 'x: ', x);
     }
 }
 

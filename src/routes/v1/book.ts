@@ -1,6 +1,7 @@
 import { Author } from '@/models/author';
 import { Book } from '@/models/book';
 import express, { Router, Request, Response, NextFunction } from 'express';
+import slugify from 'slugify';
 
 const jsonParser = express.json();
 const router: Router = express.Router();
@@ -17,6 +18,18 @@ interface BooksPostBody {
     filter?: Filter;
 }
 
+router.get('/technical', async (req: Request, res: Response) => {
+    const books = await Book.find({});
+    console.log('start: ', books.length);
+    for (let i = 0; i < books.length; i++) {
+        const book = books[i];
+        console.log('book => ', book._id);
+        book.slug = slugify(book.bookName, { lower: true });
+        await book.save();
+    }
+    return res.json({ success: true });
+});
+
 router.post('/by-id', async (req: Request, res: Response) => {
     const { id, getFull } = req.body;
     if (getFull) {
@@ -28,7 +41,8 @@ router.post('/by-id', async (req: Request, res: Response) => {
         });
     } else {
         // return Book.findById(id, { _id: 1, authorId: 1 }).then((item) => {
-        return Book.findById(id, { _id: 1, authorId: 1 }).then((item) => {
+        return Book.findById(id).then((item) => {
+            item.myTestInstanceMethod(5);
             return res.json({
                 success: true,
                 data: item.toObject(),
