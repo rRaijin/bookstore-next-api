@@ -56,6 +56,7 @@ export class BookSchema {
     @prop()
     public updatedAt: number;
 
+    // В старых версиях typegoose тут стоит декоратор @staticMethod
     public static getFullBook(bookId: string) {
         console.log('BOOK ID: ', bookId);
         return Book.aggregate([
