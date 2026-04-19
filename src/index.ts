@@ -19,7 +19,7 @@ import routerUser from './routes/v1/user';
 // import routerImages from "./routes/files.js";
 // import routerNewspaper from "./routes/newspaper.js";
 // import routerPublisher from "./routes/publisher.js";
-// import routerTechnical from "./routes/technical.js";
+import routerTechnical from './routes/technical';
 // import routerTechnicalAuthors from "./routes/technical_authors.js";
 // import loggerMiddleware from "../loggerMiddleware.js";
 
@@ -43,6 +43,7 @@ app.use(
         await connectDb();
         app.get('/ping', (req, res) => res.json({ status: 'ok' })); // for ELB checker
         app.use('/api/v1', v1router);
+        app.use('/api/technical', routerTechnical);
         // app.use(loggerMiddleware);
         // app.use("/uploads", express.static("uploads")); // предоставляется доступ ко всем медиа-файлам в папке uploads
         // app.use("/api/authors", routerAuthor);
@@ -51,7 +52,6 @@ app.use(
         // app.use("/api/genres", routerGenre);
         // app.use("/api/users", routerUser);
         // app.use("/api/images", routerImages);
-        // app.use("/api/technical", routerTechnical);
         // app.use("/api/technicalAuthors", routerTechnicalAuthors);
 
         app.listen(config.PORT, () => {

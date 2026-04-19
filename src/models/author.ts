@@ -1,4 +1,4 @@
-import { getModelForClass, prop, pre, Ref } from '@typegoose/typegoose';
+import { getModelForClass, prop, pre, Ref, index } from '@typegoose/typegoose';
 import { UserSchema } from './user';
 
 @pre<AuthorSchema>('save', function () {
@@ -7,9 +7,14 @@ import { UserSchema } from './user';
         this.createdAt = new Date().getTime();
     }
 })
+@index({ createdAt: -1 })
+@index({ age: 1, createdAt: -1 })
 export class AuthorSchema {
     @prop({ ref: () => UserSchema })
     public userId: Ref<UserSchema>;
+
+    @prop()
+    public age: number;
 
     @prop()
     public picture: string;

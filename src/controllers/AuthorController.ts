@@ -45,10 +45,12 @@ class AuthorController {
                         bio: 1,
                         'userId.firstName': 1,
                         'userId.lastName': 1,
+                        createdAt: 1,
+                        age: 1,
                     },
                 },
                 {
-                    $sort: { 'userId.firstName': -1 },
+                    $sort: { age: 1, createdAt: -1 },
                 },
                 {
                     $addFields: {
