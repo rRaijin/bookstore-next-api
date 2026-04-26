@@ -7,13 +7,15 @@ interface IConfig {
     NODE_ENV: string;
     MONGODB_URI: string;
     BASE_URL: string;
+    WHITELIST: string[];
 }
 
 const config: IConfig = {
     PORT: process.env.PORT || 3001,
-    NODE_ENV: process.env.NODE_ENV || 'development',
+    NODE_ENV: process.env.NODE_ENV || 'local',
     MONGODB_URI: process.env.MONGO_URL || 'mongodb://127.0.0.1:27017',
     BASE_URL: process.env.BASE_URL || 'http://localhost',
+    WHITELIST: [process.env.APPLICATION_URI],
 };
 
 export default config;

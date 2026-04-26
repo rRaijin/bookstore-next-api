@@ -2,29 +2,33 @@ import cors from 'cors';
 import express from 'express';
 import cookieSession from 'cookie-session';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import locale from 'locale';
 
 import { connectDb, disconnectFromDb } from './lib/mongoose';
 import config from './config';
 
-import v1router from './routes/v1/index';
+import type { CorsOptions } from 'cors';
 
-// import routerAuthor from "./routes/author.js";
-import routerBook from './routes/v1/book';
-import routerAuthor from './routes/v1/author';
-import routerFiles from './routes/v1/files';
-import routerGenre from './routes/v1/genre';
-import routerNewspaper from './routes/v1/newspaper';
-import routerPublisher from './routes/v1/publisher';
-import routerUser from './routes/v1/user';
-// import routerImages from "./routes/files.js";
-// import routerNewspaper from "./routes/newspaper.js";
-// import routerPublisher from "./routes/publisher.js";
+import v1router from './routes/v1/index';
 import routerTechnical from './routes/technical';
-// import routerTechnicalAuthors from "./routes/technical_authors.js";
-// import loggerMiddleware from "../loggerMiddleware.js";
+import limitHandler from './lib/express_rate_limiter';
 
 const app = express();
-app.use(cors());
+app.set('trust proxy', 1);
+const corsOptions: CorsOptions = {
+    // origin - это и есть адрес откуда пришел запрос
+    origin(origin, callback) {
+        if (!origin || config.WHITELIST.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`Request not allowed by CORS from origin: ${origin}`));
+            // logger error
+        }
+    },
+    credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -32,28 +36,33 @@ app.use(
     cookieSession({
         name: 'session',
         keys: ['qwerty'],
-
-        // Cookie Options
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        secure: config.NODE_ENV === 'local' ? false : true,
+        sameSite: 'lax',
+        // domain: 'api.bookstore',
+        httpOnly: true,
     }),
 );
+app.use(
+    compression({
+        treshhold: 1024, // будет сжимать ответ(response)  больше 1 Кб
+    }),
+);
+
+app.use(limitHandler);
+
+// app.use(
+//     locale(['en', 'en_US'], 'en')
+// )
+
+// app.use(myMiddleware);
 
 (async () => {
     try {
         await connectDb();
-        app.get('/ping', (req, res) => res.json({ status: 'ok' })); // for ELB checker
+        app.get('/ping', (req, res) => res.json({ status: 'ok' }));
         app.use('/api/v1', v1router);
         app.use('/api/technical', routerTechnical);
-        // app.use(loggerMiddleware);
-        // app.use("/uploads", express.static("uploads")); // предоставляется доступ ко всем медиа-файлам в папке uploads
-        // app.use("/api/authors", routerAuthor);
-        // app.use("/api/newspaper", routerNewspaper);
-        // app.use("/api/publisher", routerPublisher);
-        // app.use("/api/genres", routerGenre);
-        // app.use("/api/users", routerUser);
-        // app.use("/api/images", routerImages);
-        // app.use("/api/technicalAuthors", routerTechnicalAuthors);
-
         app.listen(config.PORT, () => {
             console.log(`> Server listening at ${config.BASE_URL}:${config.PORT} as ${process.env.NODE_ENV}`);
         });
@@ -75,20 +84,3 @@ const handleServerShutdown = async () => {
 
 process.on('SIGTERM', handleServerShutdown);
 process.on('SIGINT', handleServerShutdown);
-
-// const CONNECTION_STRING = "mongodb://127.0.0.1:27017";
-// const DATABASE_NAME = "bookstore";
-// const LISTEN_PORT = 3001;
-// const mongooseConnect = async () => {
-//   await mongoose
-//     .connect(`${CONNECTION_STRING}/${DATABASE_NAME}`)
-//     .then(() => app.listen(LISTEN_PORT))
-//     .then(() => console.log("Connection to DB..."))
-//     .catch((error) => console.log("error with conn to DB: ", error));
-// };
-// await mongooseConnect();
-// process.on("SIGINT", async () => {
-//   await mongoose.disconnect();
-//   console.log("Application ended work.");
-//   process.exit();
-// });
