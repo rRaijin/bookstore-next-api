@@ -13,6 +13,7 @@ import type { CorsOptions } from 'cors';
 import v1router from './routes/v1/index';
 import routerTechnical from './routes/technical';
 import limitHandler from './lib/express_rate_limiter';
+import middlewareCheckRules from './lib/middlewareCheckRules';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -55,7 +56,7 @@ app.use(limitHandler);
 //     locale(['en', 'en_US'], 'en')
 // )
 
-// app.use(myMiddleware);
+app.use(middlewareCheckRules);
 
 (async () => {
     try {
